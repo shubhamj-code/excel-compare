@@ -1,5 +1,6 @@
 from pathlib import Path
 import pandas as pd
+import openpyxl
 
 
 class CompareFiles(object):
@@ -31,7 +32,26 @@ class CompareFiles(object):
             print('There is a difference in the file and here are they: {0}'.format(concat_pd))
 
     def compare_excel(self):
-        pass
+        workbook_one = openpyxl.load_workbook(self.file_one_path, read_only=True)
+        workbook_two = openpyxl.load_workbook(self.file_two_path, read_only=True)
+
+        if workbook_one.get_sheet_names() != workbook_two.get_sheet_names():
+            print('Sheet names are different.')
+
+        sheet_names = workbook_one.get_sheet_names()
+
+        for sheet_name in sheet_names:
+            sheet_one: openpyxl.workbook.workbook.ReadOnlyWorksheet = workbook_one[sheet_name]
+            sheet_two = workbook_two[sheet_name]
+            df_one = pd.DataFrame(sheet_one.values)
+            df_two = pd.DataFrame(sheet_two.values)
+            concat_pd = pd.concat([df_one, df_two], axis=0)
+            concat_pd.drop_duplicates(keep=False, inplace=True)
+            concat_pd.reset_index(drop=True, inplace=True)
+            print(concat_pd)
+
+        workbook_one.close()
+        workbook_two.close()
 
     def __close__(self):
         pass
