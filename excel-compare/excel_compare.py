@@ -23,13 +23,17 @@ class CompareFiles(object):
     def compare_csv(self):
         file_one = pd.read_csv(self.file_one_path)
         file_two = pd.read_csv(self.file_two_path)
-        concat_pd = pd.concat([file_one, file_two], axis=0)
-        concat_pd.drop_duplicates(keep=False, inplace=True)
-        concat_pd.reset_index(drop=True, inplace=True)
+        concat_pd = self.__concat_drop_dataframes__(file_one, file_two)
         if concat_pd.empty:
             print('No difference found.')
         else:
             print('There is a difference in the file and here are they: {0}'.format(concat_pd))
+
+    def __concat_drop_dataframes__(self, dataframe_one: pd.DataFrame, dataframe_two: pd.DataFrame):
+        concat_pd = pd.concat([dataframe_one, dataframe_two], axis=0)
+        concat_pd.drop_duplicates(keep=False, inplace=True)
+        concat_pd.reset_index(drop=True, inplace=True)
+        return concat_pd
 
     def compare_excel(self):
         workbook_one = openpyxl.load_workbook(self.file_one_path, read_only=True)
@@ -45,9 +49,7 @@ class CompareFiles(object):
             sheet_two = workbook_two[sheet_name]
             df_one = pd.DataFrame(sheet_one.values)
             df_two = pd.DataFrame(sheet_two.values)
-            concat_pd = pd.concat([df_one, df_two], axis=0)
-            concat_pd.drop_duplicates(keep=False, inplace=True)
-            concat_pd.reset_index(drop=True, inplace=True)
+            concat_pd = self.__concat_drop_dataframes__(df_one, df_two)
             print(concat_pd)
 
         workbook_one.close()
