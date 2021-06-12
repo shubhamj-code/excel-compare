@@ -44,16 +44,21 @@ class CompareFiles(object):
 
         sheet_names = workbook_one.get_sheet_names()
 
+        found_difference = False
+
         for sheet_name in sheet_names:
             sheet_one: openpyxl.workbook.workbook.ReadOnlyWorksheet = workbook_one[sheet_name]
             sheet_two = workbook_two[sheet_name]
             df_one = pd.DataFrame(sheet_one.values)
             df_two = pd.DataFrame(sheet_two.values)
             concat_pd = self.__concat_drop_dataframes__(df_one, df_two)
-            print(concat_pd)
+            if not concat_pd.empty:
+                print('Difference found in sheet {0}\n'.format(sheet_name))
+                print('Differences are : {0}\n'.format(concat_pd))
+                found_difference = True
+
+        if not found_difference:
+            print('No difference found.')
 
         workbook_one.close()
         workbook_two.close()
-
-    def __close__(self):
-        pass
